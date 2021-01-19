@@ -1,0 +1,12 @@
+/Users/fernandor/hola/bin/Debug/netcoreapp3.1/hola.deps.json
+/Users/fernandor/hola/bin/Debug/netcoreapp3.1/hola.runtimeconfig.json
+/Users/fernandor/hola/bin/Debug/netcoreapp3.1/hola.runtimeconfig.dev.json
+/Users/fernandor/hola/bin/Debug/netcoreapp3.1/hola.dll
+/Users/fernandor/hola/bin/Debug/netcoreapp3.1/hola.pdb
+/Users/fernandor/hola/obj/Debug/netcoreapp3.1/hola.csprojAssemblyReference.cache
+/Users/fernandor/hola/obj/Debug/netcoreapp3.1/hola.AssemblyInfoInputs.cache
+/Users/fernandor/hola/obj/Debug/netcoreapp3.1/hola.AssemblyInfo.cs
+/Users/fernandor/hola/obj/Debug/netcoreapp3.1/hola.csproj.CoreCompileInputs.cache
+/Users/fernandor/hola/obj/Debug/netcoreapp3.1/hola.dll
+/Users/fernandor/hola/obj/Debug/netcoreapp3.1/hola.pdb
+/Users/fernandor/hola/obj/Debug/netcoreapp3.1/hola.genruntimeconfig.cache
