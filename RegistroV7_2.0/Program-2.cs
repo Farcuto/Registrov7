@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using Registro_V6;
 
 namespace Registro_V6
 {
@@ -13,53 +14,46 @@ namespace Registro_V6
                 Environment.Exit(0);
             }
 
-            FileExists(args[0]);
-
-            StreamReader reader = new StreamReader(args[0]);
-            string[] read = reader.ReadToEnd().Split(Environment.NewLine);
-            reader.Close();
-
-            List<Persona> people = new List<Persona>();
-            foreach (var i in read)
-            {
-                if(i != "") people.Add(Persona.CreateFromLine(i));
-            }
-
-            Reg set = new Reg(people, 3);
             while(true){
+                FileExists(args[0]);
+
+                StreamReader reader = new StreamReader(args[0]);
+                string[] read = reader.ReadToEnd().Split(Environment.NewLine);
+                reader.Close();
+
+                Ins214Set people = new Ins214Set();
+                foreach (var i in read)
+                {
+                    if(i != "") people.Add(Persona.CreateFromLine(i));
+                }
                 
-                
-                System.Console.WriteLine("\n1- Capturar\n2- Listar\n3- Buscar\n4- Modificar\n5- Eliminar\nG - Guardar\n6-salir");
+                System.Console.WriteLine("\n1- Capturar\n2- Listar\n3- Buscar\n4- Modificar\n5- Eliminar\n6-salir");
                 System.Console.Write("Selecione una opciona: ");
                 string option = Console.ReadLine();
 
                 switch (option)
                 {
                     case "1":
-                        Capturar(set);
+                        Capturar(args[0], people);
                         break;
                     
                     case "2":
-                        Listar(set);
+                        Listar(people);
                         break;
 
                     case "3":
-                        Buscar(set);
+                        Buscar(people);
                         break;
                     
                     case "4":
-                        Editar(set);
+                        Editar(args[0], people);
                         break;
                     
                     case "5":
-                        Eliminar(set);
+                        Eliminar(args[0], people);
                         break;
 
                     case "6":
-                        Save(set, args[0]);
-                        break;
-
-                    case "7":
                         Environment.Exit(0);
                         break;
                     
@@ -71,44 +65,6 @@ namespace Registro_V6
             }
         }
 
-        private static void Eliminar(Reg set)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void Editar(Reg set)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void Buscar(Reg set)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void Listar(Reg set)
-        {
-            throw new NotImplementedException();
-        }
-
-        static void Save(Reg Regi, string path)
-        {
-            Persona[] sort = Regi.toSortArray();
-
-            File.Delete(path);
-
-            foreach(var i in sort)
-            {
-                if(i != null)
-                {
-                    StreamWriter writer = File.AppendText(path);
-                    writer.WriteLine(i.ToWrite());
-                    writer.Close();
-                }
-            }
-            System.Console.WriteLine("Guardado completado!!!");
-        }
-
         static void FileExists(string path)
         {
             if(!File.Exists(path))
@@ -117,7 +73,7 @@ namespace Registro_V6
                 creator.Close();
             }
         }
-        static void Capturar( Reg regi)
+        static void Capturar(string path, Ins214Set people)
         {
             while(true){
                 string ced = ReadCedula("\nCedula: ");
@@ -157,71 +113,49 @@ namespace Registro_V6
                 Console.WriteLine();
                 if (!success) continue;
 
-                
-                
-                    while (true)
-                    {
+                Persona nuevo = new Persona(ced, name, ape, datos, ahorros, password);
+                if (people.Contains(nuevo)){
+                    Console.WriteLine("La cédula ya existe!!");
+                } else{
+                    while (true){
                         Console.WriteLine("\nGuardar (G); Rehacer (R); Salir (S)");
                         string opt = Console.ReadLine().ToUpper();
 
                         if (opt == "G"){
-                            Persona nuevo = new Persona(ced, name, ape, datos, ahorros, password);
-                            bool add = regi.Add(nuevo);
-
-                            if(add)
-                            {
-                                System.Console.WriteLine("Guardado Completo!!!");
-
-                            }
-                            else
-                            {
-                                System.Console.WriteLine("Guardado incompleto!!");
-                            }
+                            StreamWriter writer = File.AppendText(path);
+                            writer.WriteLine(nuevo.ToWrite());
+                            writer.Close();
                             
                             break;
                         } else if (opt == "R") break;
                         else if (opt == "S") Environment.Exit(0);
                         else continue;
                     }
-                
+                }
 
-            
+            }
         }
         
 
         
-        static void Listar(Reg regi)
-        {
-            Persona[] order = regi.toSortArray();
-            foreach (var i in order){
-                if(i != null)
-                {
+        static void Listar(Ins214Set people)
+        {// Se devuelve la lista sorteada por Id
+            foreach (var i in people.ToSortedArray()){
                 Console.WriteLine(i);
-                }
             }
         }
 
-        static Persona Buscar(Reg regi)
+        static Persona Buscar(Ins214Set people)
         {
             string ced = ReadCedula("\nIntroduzca la cédula a buscar: ");
-            Persona persona = new Persona(ced,"","",0,0,"");
+            Persona persona = new Persona("","","",0,0,"");
 
             Console.WriteLine();
-            if(regi.Contains(persona))
-            {
-                int buck = Math.Abs(persona.GetHashCode()) % regi.Bucket;
-                int pas = regi.BinaryS(persona);
-
-                if(regi.Regi[buck][pas]!=null)
-                {
-                    persona = regi.Regi[buck][pas];
-                    System.Console.WriteLine(persona);
+            foreach (var i in people.ToSortedArray()){
+                if (i.Id == ced){
+                    persona = i;
+                    Console.WriteLine(persona);
                 }
-            }
-            else
-            {
-                persona.Id = "";
-                System.Console.WriteLine("No se ha podido encontrar la persona!!!");
             }
 
             if (persona.Id == "") 
@@ -232,9 +166,9 @@ namespace Registro_V6
         }
 
         
-        static void Editar(Reg regi)
+        static void Editar(string path, Ins214Set people)
         {
-            Persona persona = Buscar(regi);
+            Persona persona = Buscar(people);
 
             if (persona.Id == "") return;
 
@@ -277,22 +211,38 @@ namespace Registro_V6
                 if (!success) continue;
 
                 Persona nuevo = new Persona(ced, name, ape, datos, ahorros, password);
-                
-                bool replace = regi.Replace(persona ,nuevo);
-                if(replace)
-                {
-                    System.Console.WriteLine("Edicion completada!!!");
-                }
-                else
-                {
-                    System.Console.WriteLine("Edicion Incompleta!!");
+                if (nuevo.Equals(persona)){
+                    File.Delete(path);
+                    foreach (var i in people.ToSortedArray()){
+                        Persona line = i;
+                        if (line.Equals(nuevo)) line = nuevo;
+
+                        StreamWriter writer = File.AppendText(path);
+                        writer.WriteLine(line.ToWrite());
+                        writer.Close();
+                    }
+                    Console.WriteLine();
+                    break;
+                } else if (people.Contains(nuevo)) Console.WriteLine("\nLa cédula ya existe!!");
+                else {
+                    File.Delete(path);
+                    foreach (var i in people.ToSortedArray()){
+                        Persona line = i;
+                        if(line.Equals(persona)) line = nuevo;
+
+                        StreamWriter writer = File.AppendText(path);
+                        writer.WriteLine(line.ToWrite());
+                        writer.Close();
+                    }
+                    Console.WriteLine();
+                    break;
                 }
             }
         }
 
-        static void Eliminar(Reg regi)
+        static void Eliminar(string path, Ins214Set people)
         {
-            Persona persona = Buscar(regi);
+            Persona persona = Buscar(people);
 
             if (persona.Id == "") return;
 
@@ -301,15 +251,15 @@ namespace Registro_V6
                 string opt = Console.ReadLine().ToUpper();
 
                 if (opt == "Y"){
-                    bool remove = regi.Remove(persona);
-                    if(remove)
-                    {
-                        System.Console.WriteLine("Eliminacion completa!!!");
+                    people.Remove(persona);//Se remueve la persona 
+                    File.Delete(path);
 
-                    }
-                    else
-                    {
-                        System.Console.WriteLine("Eliminacion incompleta!!!"); 
+                    foreach(var i in people.ToSortedArray()){
+                        if (i.Equals(persona)) continue;
+
+                        StreamWriter writer = File.AppendText(path);
+                        writer.WriteLine(i.ToWrite());
+                        writer.Close();
                     }
                     Console.WriteLine();
                     break;
@@ -488,8 +438,7 @@ namespace Registro_V6
                 }
             } while (key != ConsoleKey.Enter);
             return Convert.ToChar(value);
-            }
-            
         }
+            
     }
 }
